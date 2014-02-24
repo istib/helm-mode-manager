@@ -44,61 +44,64 @@
 
 (require 'helm)
 
+(defun helm-mode-manager-describe-mode (mode)
+  (describe-function (intern mode)))
+
 (defun helm-enable-minor-mode ()
   (interactive)
   (helm
    :sources '((name . "Minor modes")
               (candidates . minor-mode-list)
               (action . (lambda (mode) (funcall (intern mode))))
-              (persistent-action . (lambda (mode) (describe-function (intern mode)))))))
+              (persistent-action . helm-mode-manager-describe-mode))))
 
 (defun helm-disable-minor-mode ()
   (interactive)
   (let (active-minor-modes)
     (mapc (lambda (mode) (condition-case nil
-                             (if (and (symbolp mode) (symbol-value mode))
-                                 (add-to-list 'active-minor-modes mode))
-                           (error nil)))
+                        (if (and (symbolp mode) (symbol-value mode))
+                            (add-to-list 'active-minor-modes mode))
+                      (error nil)))
           minor-mode-list)
     (helm
      :sources '((name . "Active minor modes")
                 (candidates . active-minor-modes)
                 (action . (lambda (mode) (funcall (intern mode) -1)))
-                (persistent-action . (lambda (mode) (describe-function (intern mode))))))))
+                (persistent-action . helm-mode-manager-describe-mode)))))
 
-(defun list-major-modes ()
+(defun helm-mode-manager-list-major-modes ()
   "Returns list of potential major mode names.
 From Tobias Zawada (http://stackoverflow.com/questions/5536304/emacs-stock-major-modes-list)"
   (interactive)
   (let (l)
     (mapatoms #'(lambda (f) (and
-                             (commandp f)
-                             (string-match "-mode$" (symbol-name f))
-                             ;; auto-loaded
-                             (or (and (autoloadp (symbol-function f))
-                                      (let ((doc (documentation f)))
-                                        (when doc
-                                          (and
-                                           (let ((docSplit (help-split-fundoc doc f)))
-                                             (and docSplit ;; car is argument list
-                                                  (null (cdr (read (car docSplit)))))) ;; major mode starters have no arguments
-                                           (if (string-match "[mM]inor" doc) ;; If the doc contains "minor"...
-                                               (string-match "[mM]ajor" doc) ;; it should also contain "major".
-                                             t) ;; else we cannot decide therefrom
-                                           ))))
-                                 (null (help-function-arglist f)))
-                             (setq l (cons (symbol-name f) l)))))
+                        (commandp f)
+                        (string-match "-mode$" (symbol-name f))
+                        ;; auto-loaded
+                        (or (and (autoloadp (symbol-function f))
+                              (let ((doc (documentation f)))
+                                (when doc
+                                  (and
+                                   (let ((docSplit (help-split-fundoc doc f)))
+                                     (and docSplit ;; car is argument list
+                                        (null (cdr (read (car docSplit)))))) ;; major mode starters have no arguments
+                                   (if (string-match "[mM]inor" doc) ;; If the doc contains "minor"...
+                                       (string-match "[mM]ajor" doc) ;; it should also contain "major".
+                                     t) ;; else we cannot decide therefrom
+                                   ))))
+                           (null (help-function-arglist f)))
+                        (setq l (cons (symbol-name f) l)))))
     l))
 
 (defun helm-switch-major-mode ()
   (interactive)
-  (let ((major-modes (list-major-modes)))
-        (helm
-         :sources '((name . "Major modes")
-                    (candidates . major-modes)
-                    (action . (lambda (mode) (funcall (intern mode))))
-                    (persistent-action . (lambda (mode) (describe-function (intern mode))))))))
+  (let ((major-modes (helm-mode-manager-list-major-modes)))
+    (helm
+     :sources '((name . "Major modes")
+                (candidates . major-modes)
+                (action . (lambda (mode) (funcall (intern mode))))
+                (persistent-action . (lambda (mode) (describe-function (intern mode))))))))
 
 (provide 'helm-mode-manager)
 
-;;; helm-modes.el ends here
+;;; helm-mode-manager.el ends here
