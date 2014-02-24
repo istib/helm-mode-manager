@@ -47,6 +47,7 @@
 (defun helm-mode-manager-describe-mode (mode)
   (describe-function (intern mode)))
 
+;;;###autoload
 (defun helm-enable-minor-mode ()
   (interactive)
   (helm
@@ -55,6 +56,7 @@
               (action . (lambda (mode) (funcall (intern mode))))
               (persistent-action . helm-mode-manager-describe-mode))))
 
+;;;###autoload
 (defun helm-disable-minor-mode ()
   (interactive)
   (let (active-minor-modes)
@@ -93,6 +95,7 @@ From Tobias Zawada (http://stackoverflow.com/questions/5536304/emacs-stock-major
                         (setq l (cons (symbol-name f) l)))))
     l))
 
+;;;###autoload
 (defun helm-switch-major-mode ()
   (interactive)
   (let ((major-modes (helm-mode-manager-list-major-modes)))
