@@ -53,7 +53,9 @@
   (helm
    :sources '((name . "Minor modes")
               (candidates . minor-mode-list)
-              (action . (lambda (mode) (funcall (intern mode))))
+              (action . (lambda (_candidate)
+                          (dolist (mode (helm-marked-candidates))
+                            (funcall (intern mode)))))
               (persistent-action . helm-mode-manager-describe-mode))))
 
 ;;;###autoload
@@ -68,7 +70,9 @@
     (helm
      :sources '((name . "Active minor modes")
                 (candidates . active-minor-modes)
-                (action . (lambda (mode) (funcall (intern mode) -1)))
+                (action . (lambda (_candidate)
+                            (dolist (mode (helm-marked-candidates))
+                              (funcall (intern mode) -1))))
                 (persistent-action . helm-mode-manager-describe-mode)))))
 
 (defun helm-mode-manager-list-major-modes ()
