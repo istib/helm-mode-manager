@@ -37,7 +37,7 @@
 
 ;; A call to `helm-disable-minor-mode' will give you a `helm'
 ;; selection of active minor modes.  Selecting a target will
-;; disactivate the minor mode.  The persistent action is to show help
+;; deactivate the minor mode.  The persistent action is to show help
 ;; about the selected minor mode.
 
 ;;; Code:
@@ -49,6 +49,9 @@
 
 ;;;###autoload
 (defun helm-enable-minor-mode ()
+  "Return a `helm' selection of all available minor modes.
+Selecting a target will activate the minor mode. The persistent
+action is to show help about the selected minor mode."
   (interactive)
   (helm
    :sources '((name . "Minor modes")
@@ -60,6 +63,9 @@
 
 ;;;###autoload
 (defun helm-disable-minor-mode ()
+  "Return a `helm' selection of active minor modes. Selecting a
+target will deactivate the minor mode. The persistent action is
+to show help about the selected minor mode."
   (interactive)
   (let (active-minor-modes)
     (mapc (lambda (mode) (condition-case nil
@@ -77,7 +83,7 @@
 
 (defun helm-mode-manager-list-major-modes ()
   "Returns list of potential major mode names.
-From Tobias Zawada (http://stackoverflow.com/questions/5536304/emacs-stock-major-modes-list)"
+From Tobias Zawada (http://stackoverflow.com/a/19165202)."
   (interactive)
   (let (l)
     (mapatoms #'(lambda (f) (and
@@ -101,6 +107,9 @@ From Tobias Zawada (http://stackoverflow.com/questions/5536304/emacs-stock-major
 
 ;;;###autoload
 (defun helm-switch-major-mode ()
+  "Return a `helm' selection of all available major modes.
+Selecting a target will activate the major mode. The persistent
+action is to show help about the selected major mode."
   (interactive)
   (let ((major-modes (helm-mode-manager-list-major-modes)))
     (helm
