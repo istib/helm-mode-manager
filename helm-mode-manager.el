@@ -54,12 +54,13 @@ Selecting a target will activate the minor mode. The persistent
 action is to show help about the selected minor mode."
   (interactive)
   (helm
-   :sources '((name . "Minor modes")
-              (candidates . minor-mode-list)
-              (action . (lambda (_candidate)
-                          (dolist (mode (helm-marked-candidates))
-                            (funcall (intern mode)))))
-              (persistent-action . helm-mode-manager-describe-mode))))
+   :sources
+   (helm-build-sync-source "Minor modes"
+     :candidates minor-mode-list
+     :action  (lambda (_candidate)
+                 (dolist (mode (helm-marked-candidates))
+                   (funcall (intern mode))))
+     :persistent-action  #'helm-mode-manager-describe-mode)))
 
 ;;;###autoload
 (defun helm-disable-minor-mode ()
@@ -74,12 +75,12 @@ to show help about the selected minor mode."
                       (error nil)))
           minor-mode-list)
     (helm
-     :sources '((name . "Active minor modes")
-                (candidates . active-minor-modes)
-                (action . (lambda (_candidate)
-                            (dolist (mode (helm-marked-candidates))
-                              (funcall (intern mode) -1))))
-                (persistent-action . helm-mode-manager-describe-mode)))))
+     :sources (helm-build-sync-source "Active minor modes"
+       :candidates active-minor-modes
+       :action  (lambda (_candidate)
+                  (dolist (mode (helm-marked-candidates))
+                    (funcall (intern mode) -1)))
+       :persistent-action  #'helm-mode-manager-describe-mode))))
 
 (defun helm-mode-manager-list-major-modes ()
   "Returns list of potential major mode names.
@@ -113,10 +114,10 @@ action is to show help about the selected major mode."
   (interactive)
   (let ((major-modes (helm-mode-manager-list-major-modes)))
     (helm
-     :sources '((name . "Major modes")
-                (candidates . major-modes)
-                (action . (lambda (mode) (funcall (intern mode))))
-                (persistent-action . (lambda (mode) (describe-function (intern mode))))))))
+     :sources (helm-build-sync-source "Major modes"
+                :candidates major-modes
+                :action (lambda (mode) (funcall (intern mode)))
+                :persistent-action (lambda (mode) (describe-function (intern mode)))))))
 
 (provide 'helm-mode-manager)
 
